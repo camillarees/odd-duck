@@ -10,20 +10,16 @@
 // As a user, I would like to track the selections made by viewers so that I can determine which products to begin production on.
 // In the constructor function define a property to hold the number of times a product has been clicked.
 
-let clicks = 0;
-
-let viewedImages = 0;
-let clickedImages = [];
-
 let productList = [];
 
 // Product Constructor
 
-function Product (filePath, alt, title, viewed = 0, clicked = 0) {
-  this.filePath = filePath;
+function Product (src, alt, title, viewed = 0, clicked = 0) {
+  this.src = src;
   this.alt = alt;
   this.title = title;
   this.viewed = viewed;
+  // holds how many times product has been clicked
   this.clicked = clicked;
   productList.push(this);
 }
@@ -35,7 +31,7 @@ let allProducts = [
   new Product ('./images/bathroom.jpg', 'weird bathroom', 'bathroom'),
   new Product ('./images/boots.jpg', 'weird boots', 'boots'),
   new Product ('./images/breakfast.jpg', 'weird breakfast', 'breakfast'),
-  new Product ('./images/bubblegum.jpg', 'weird bubblegum', 'bubblegum'), 
+  new Product ('./images/bubblegum.jpg', 'weird bubblegum', 'bubblegum'),
   new Product ('./images/chair.jpg', 'weird chair', 'chair'),
   new Product ('./images/cthulhu.jpg', 'weird cthulhu', 'cthulhu'),
   new Product ('./images/dog-duck.jpg', 'weird dog duck', 'dog-duck'),
@@ -54,20 +50,8 @@ let allProducts = [
 // Random Number Generator that returns 3 random indexes of productList
 
 function randomImage() {
-  return Math.floor(Math.random() * allProducts.length); 
+  return Math.floor(Math.random() * allProducts.length);
 }
-
-// // Instead of a for loop, I want to use a random number generator
-// for (let i = 0; i < allProducts.length; i++) {
-// let product = allProducts[i];
-// // Step 1. create element
-// // - Done in html, line 11
-// // Step 2. fill with content
-// let img = document.getElementById("productImage");
-// console.log(img);
-// img.src = `assets/${product.name}.jpg`
-// // Step 3. append child
-// }
 
 // Unique image checker
 
@@ -86,68 +70,84 @@ function uniqueImageChecker () {
 
     // if new image, add to the array
     // if repeated image, don't do anything
-      
+
   }
   console.log('uniqueImageChecker', imageArray);
 };
 
 uniqueImageChecker();
 
-// DOM
+// Event Listener attached to HTML where images will be displayed
 
-let threeImages = allProducts[uniqueImageChecker()];
-let imageOne = document.getElementById('image1');
-imageOne.filePath = productList.filePath;
-viewedImages++;
-let imageTwo = document.getElementById('image2');
-imageTwo.filePath = productList.filePath;
-viewedImages++;
-let imageThree = document.getElementById('image3');
-imageThree.filePath = productList.filePath;
-viewedImages++;
+let button = document.getElementById('productImages');
+button.addEventListener('click', renderNewImages);
 
-// For each of the three images, increment its property of times it has been shown by one.
-let currentRound = 0;
-// // Event Listener attached to HTML where images will be displayed:
-// let button = document.getElementById('productImages');
-// button.addEventListener('click', showNewImage);
-
-// // Event Handler that's invoked upon button click
+// Event Handler that's invoked upon button click
 
 function renderNewImages() {
-  // Call unique image checker and generator into global product array
+// Call unique image checker and generator into global product array\
   let threeNewImages = allProducts[uniqueImageChecker()];
+  let currentRound = 0;
+  // If image is clicked, render 3 new images
   for (let i = 0; i < 26; i++){
-    let img1 = document.getElementById('image1');
-    let img2 = document.getElementById('image2');
-    let img3 = document.getElementById('image3');
-    // Make the img the product
-    img1.filePath = allProducts[].filePath;
-    img1.alt = allProducts[].alt;
-    img1.title = allProducts[].title;
-    
-    img2.filePath = allProducts[].filePath;
-    img2.alt = allProducts[].alt;
-    img2.title = allProducts[].title;
-    
-    img3.filePath = allProducts[].filePath;
-    img3.alt = allProducts[].alt;
-    img3.title = allProducts[].title;
+    let imageOne = document.getElementById('image1');
+    imageOne.src = productList.src;
+    imageOne.alt = productList.alt;
+    imageOne.title = productList.title;
+    // increment times each image has been shown
+    Product.viewed++;
+    let imageTwo = document.getElementById('image2');
+    imageTwo.src = productList.src;
+    imageTwo.alt = productList.alt;
+    imageTwo.title = productList.title;
+    Product.viewed++;
+    let imageThree = document.getElementById('image3');
+    imageThree.src = productList.src;
+    imageThree.alt = productList.alt;
+    imageThree.title = productList.title;
+    Product.viewed++;
   }
- 
+
   currentRound++;
   // Remove event listener after 25 clicks
   if (currentRound === 25) {
-    button.removeEventListener('click', showNewImage);
+    button.removeEventListener('click', renderNewImages);
   }
 }
 
 renderNewImages();
 
-// Result Generator
+function storeClicks(event) {
+  let imageClicked = event.target.title;
+  for(let i = 0; i < productList.length; i++) {
+    if(imageClicked === productList[i].title){
+      productList[i].clicked++;
+      break;
+    }
+  }
+}
 
-// Chart Render
 
+button.addEventListener('click', storeClicks);
+
+storeClicks();
+
+renderNewImages();
+
+
+
+// Results Generator
+
+function resultsGenerator() {
+  document.getElementById('ul');
+  for (i = 0; i < productList.length; i++) {
+    document.createElement('li');
+    li.textContent = `${this.title} had ${this.clicked} votes, and was seen ${this.viewed} times.`
+    ul.appendChild('li');
+  }
+}
+
+resultsGenerator();
 
 
 // By default, the user should be presented with 25 rounds of voting before ending the session.
