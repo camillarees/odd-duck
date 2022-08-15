@@ -10,6 +10,12 @@
 
 let productList = [];
 
+let currentRound = 0;
+
+let viewResultsButton = document.getElementById('resultsButton');
+
+let viewProductImages = document.getElementById('productImages');
+
 // Product Constructor
 
 function Product (src, alt, title, viewed = 0, clicked = 0) {
@@ -72,75 +78,78 @@ function uniqueImageChecker () {
 
   }
   console.log('uniqueImageChecker', imageArray);
+  return (imageArray);
 };
 
-uniqueImageChecker();
+//--------------------EVENT LISTENERS (attached to HTML where images will be displayed)
 
-// Event Listener attached to HTML where images will be displayed
+let imageOne = document.getElementById('image1');
+imageOne.addEventListener('click', handleClicks);
+let imageTwo = document.getElementById('image2');
+imageTwo.addEventListener('click', handleClicks);
+let imageThree = document.getElementById('image3');
+imageThree.addEventListener('click', handleClicks);
 
-let button1 = document.getElementById('productButton1');
-button1.addEventListener('click', renderNewImages);
-let button2 = document.getElementById('productButton2');
-button2.addEventListener('click', renderNewImages);
-let button3 = document.getElementById('productButton3');
-button3.addEventListener('click', renderNewImages);
-
-// Event Handler that's invoked upon button click
+//--------------------EVENT HANDLERS (invoked upon click)
 
 function renderNewImages() {
 // Call unique image checker and generator into global product array
-  let threeNewImages = allProducts[uniqueImageChecker()];
-  let currentRound = 0;
-  // If image is clicked, render 3 new images
-  for (let i = 0; i < 26; i++){
-    let imageOne = document.getElementById('image1');
-    imageOne.src = productList.src;
-    imageOne.alt = productList.alt;
-    imageOne.title = productList.title;
-    // increment times each image has been shown
-    Product.viewed++;
-    let imageTwo = document.getElementById('image2');
-    imageTwo.src = productList.src;
-    imageTwo.alt = productList.alt;
-    imageTwo.title = productList.title;
-    Product.viewed++;
-    let imageThree = document.getElementById('image3');
-    imageThree.src = productList.src;
-    imageThree.alt = productList.alt;
-    imageThree.title = productList.title;
-    Product.viewed++;
-  }
+  let threeNewImages = uniqueImageChecker();
+  let product1, product2, product3;
+  product1 = allProducts[threeNewImages[0]]; 
+  product2 = allProducts[threeNewImages[1]];
+  product3 = allProducts[threeNewImages[2]];
 
-  currentRound++;
-  // Remove event listener after 25 clicks
-  if (currentRound === 25) {
-    button1.removeEventListener('click', renderNewImages);
-    button2.removeEventListener('click', renderNewImages);
-    button3.removeEventListener('click', renderNewImages);
-  }
+  console.log(product1, product2, product3);
+
+  // If image is clicked, render 3 new images
+  let imageOne = document.getElementById('image1');
+  imageOne.src = product1.src;
+  imageOne.alt = product1.alt;
+  imageOne.title = product1.title;
+  // increment times each image has been shown
+  product1.viewed++;
+  let imageTwo = document.getElementById('image2');
+  imageTwo.src = product2.src;
+  imageTwo.alt = product2.alt;
+  imageTwo.title = product2.title;
+  product2.viewed++;
+  let imageThree = document.getElementById('image3');
+  imageThree.src = product3.src;
+  imageThree.alt = product3.alt;
+  imageThree.title = product3.title;
+  product3.viewed++;
+
 }
 
 renderNewImages();
 
-function storeClicks(event) {
+//--------------------HELPER FUNCTION
+
+function handleClicks(event) {
   let imageClicked = event.target;
-  let nameOfImageClicked = imageClicked.title.value;
+  console.log(imageClicked);
+  let nameOfImageClicked = imageClicked.title;
+  console.log(nameOfImageClicked);
   for(let i = 0; i < productList.length; i++) {
     if(nameOfImageClicked === productList[i].title){
       productList[i].clicked++;
       break;
     }
   }
+  currentRound++;
+  if(currentRound === 25) {
+    viewResultsButton.hidden = false;
+    viewProductImages.hidden = true;
+    imageOne.removeEventListener('click', handleClicks);
+    imageTwo.removeEventListener('click', handleClicks);
+    imageThree.removeEventListener('click', handleClicks);
+  } else {
+    renderNewImages();
+  }
 }
 
-
-button1.addEventListener('click', storeClicks);
-button2.addEventListener('click', storeClicks);
-button3.addEventListener('click', storeClicks);
-
-// storeClicks();
-
-renderNewImages();
+viewResultsButton.addEventListener('click', resultsGenerator);
 
 // Results Generator
 
@@ -148,12 +157,10 @@ function resultsGenerator() {
   let unorderedList = document.getElementById('ul');
   for (let i = 0; i < productList.length; i++) {
     let listItem = document.createElement('li');
-    listItem.textContent = `${Product.title} had ${Product.clicked} votes, and was seen ${Product.viewed} times.`;
+    listItem.textContent = `${productList[i].title} had ${productList[i].clicked} votes, and was seen ${productList[i].viewed} times.`;
     unorderedList.appendChild(listItem);
   }
 }
-
-resultsGenerator();
 
 
 // Keep the number of rounds in a variable to allow the number to be easily changed for debugging and testing purposes.
