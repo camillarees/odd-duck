@@ -1,12 +1,8 @@
 'use strict';
 
-// Create a constructor function that creates an object associated with each product, and has the following properties:
-// Name of the product
-// File path of image
-// Times the image has been shown
+//--------------------GLOBAL VARIABLES/IMPORTS
 
-// As a user, I would like to track the selections made by viewers so that I can determine which products to begin production on.
-// In the constructor function define a property to hold the number of times a product has been clicked.
+let previousArray = [];
 
 let productList = [];
 
@@ -16,7 +12,7 @@ let viewResultsButton = document.getElementById('resultsButton');
 
 let viewProductImages = document.getElementById('productImages');
 
-// Product Constructor
+//--------------------CONSTRUCTORS
 
 function Product (src, alt, title, viewed = 0, clicked = 0) {
   this.src = src;
@@ -29,7 +25,8 @@ function Product (src, alt, title, viewed = 0, clicked = 0) {
   productList.push(this);
 }
 
-// Products Category
+//--------------------CONSTRUCTOR METHODS
+
 let allProducts = [
   new Product ('images/bag.jpg', 'weird bag', 'bag'),
   new Product ('images/banana.jpg', 'weird banana', 'banana'),
@@ -52,6 +49,8 @@ let allProducts = [
   new Product ('images/wine-glass.jpg', 'weird wine glass', 'wine-glass'),
 ];
 
+//--------------------FUNCTIONS
+
 // Random Number Generator that returns 3 random indexes of productList
 
 function randomImage() {
@@ -61,25 +60,31 @@ function randomImage() {
 // Unique image checker
 
 function uniqueImageChecker () {
+  console.log(previousArray);
   let imageArray = [];
-  // while there are fewer than 3 images
+  // while there are fewer than 3 images (we don't want the same photos in the immediate previous set)
   while (imageArray.length < 3) {
     let randomIndex = randomImage();
     // generate an image
-    if (imageArray.includes(randomIndex)) {
+    if (imageArray.includes(randomIndex) || previousArray.includes(randomIndex)) {
       // do nothing
     }
     else {
       imageArray.push(randomIndex);
     }
-
+    
     // if new image, add to the array
     // if repeated image, don't do anything
-
+    
   }
-  console.log('uniqueImageChecker', imageArray);
+  previousArray = imageArray;
+
+  console.log(imageArray);
+  console.log('----');
+  // console.log('uniqueImageChecker', imageArray);
   return (imageArray);
 };
+
 
 //--------------------EVENT LISTENERS (attached to HTML where images will be displayed)
 
@@ -100,7 +105,7 @@ function renderNewImages() {
   product2 = allProducts[threeNewImages[1]];
   product3 = allProducts[threeNewImages[2]];
 
-  console.log(product1, product2, product3);
+  // console.log(product1, product2, product3);
 
   // If image is clicked, render 3 new images
   let imageOne = document.getElementById('image1');
@@ -124,13 +129,15 @@ function renderNewImages() {
 
 renderNewImages();
 
+
+
 //--------------------HELPER FUNCTION
 
 function handleClicks(event) {
   let imageClicked = event.target;
-  console.log(imageClicked);
+  // console.log(imageClicked);
   let nameOfImageClicked = imageClicked.title;
-  console.log(nameOfImageClicked);
+  // console.log(nameOfImageClicked);
   for(let i = 0; i < productList.length; i++) {
     if(nameOfImageClicked === productList[i].title){
       productList[i].clicked++;
@@ -138,7 +145,7 @@ function handleClicks(event) {
     }
   }
   currentRound++;
-  if(currentRound === 25) {
+  if(currentRound === 10) {
     viewResultsButton.hidden = false;
     viewProductImages.hidden = true;
     imageOne.removeEventListener('click', handleClicks);
@@ -149,19 +156,84 @@ function handleClicks(event) {
   }
 }
 
-viewResultsButton.addEventListener('click', resultsGenerator);
+viewResultsButton.addEventListener('click', renderChart);
 
-// Results Generator
 
-function resultsGenerator() {
-  let unorderedList = document.getElementById('ul');
-  for (let i = 0; i < productList.length; i++) {
-    let listItem = document.createElement('li');
-    listItem.textContent = `${productList[i].title} had ${productList[i].clicked} votes, and was seen ${productList[i].viewed} times.`;
-    unorderedList.appendChild(listItem);
+// Render Chart
+
+function renderChart() {
+  let productNames = [];
+  let clicks = [];
+  let views = [];
+
+  for (let i = 0; i < allProducts.length; i++) {
+    productNames.push(allProducts[i].title);
+    clicks.push(allProducts[i].clicked);
+    views.push(allProducts[i].viewed);
   }
+
+  const ctx = document.getElementById('myChart').getContext('2d');
+  const myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: productNames,
+      datasets: [
+        {
+          label: '# of Votes',
+          data: clicks,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            // 'rgba(54, 162, 235, 0.2)',
+            // 'rgba(255, 206, 86, 0.2)',
+            // 'rgba(75, 192, 192, 0.2)',
+            // 'rgba(153, 102, 255, 0.2)',
+            // 'rgba(255, 159, 64, 0.2)',
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            // 'rgba(54, 162, 235, 1)',
+            // 'rgba(255, 206, 86, 1)',
+            // 'rgba(75, 192, 192, 1)',
+            // 'rgba(153, 102, 255, 1)',
+            // 'rgba(255, 159, 64, 1)',
+          ],
+          borderWidth: 1,
+        },
+        {
+          label: '# of Views',
+          data: views,
+          backgroundColor: [
+            // 'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            // 'rgba(255, 206, 86, 0.2)',
+            // 'rgba(75, 192, 192, 0.2)',
+            // 'rgba(153, 102, 255, 0.2)',
+            // 'rgba(255, 159, 64, 0.2)',
+          ],
+          borderColor: [
+            // 'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            // 'rgba(255, 206, 86, 1)',
+            // 'rgba(75, 192, 192, 1)',
+            // 'rgba(153, 102, 255, 1)',
+            // 'rgba(255, 159, 64, 1)',
+          ],
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
 }
 
+
+//--------------------FUNCTION CALLS
 
 // Keep the number of rounds in a variable to allow the number to be easily changed for debugging and testing purposes.
 
