@@ -4,7 +4,7 @@
 
 let previousArray = [];
 
-let productList = [];
+let allProducts = [];
 
 let currentRound = 0;
 
@@ -22,37 +22,44 @@ function Product (src, alt, title, viewed = 0, clicked = 0) {
   // holds how many times product has been clicked
   this.clicked = clicked;
   // all products being considered
-  productList.push(this);
+  allProducts.push(this);
 }
 
 //--------------------CONSTRUCTOR METHODS
 
-let allProducts = [
-  new Product ('images/bag.jpg', 'weird bag', 'bag'),
-  new Product ('images/banana.jpg', 'weird banana', 'banana'),
-  new Product ('images/bathroom.jpg', 'weird bathroom', 'bathroom'),
-  new Product ('images/boots.jpg', 'weird boots', 'boots'),
-  new Product ('images/breakfast.jpg', 'weird breakfast', 'breakfast'),
-  new Product ('images/bubblegum.jpg', 'weird bubblegum', 'bubblegum'),
-  new Product ('images/chair.jpg', 'weird chair', 'chair'),
-  new Product ('images/cthulhu.jpg', 'weird cthulhu', 'cthulhu'),
-  new Product ('images/dog-duck.jpg', 'weird dog duck', 'dog-duck'),
-  new Product ('images/dragon.jpg', 'weird dragon', 'dragon'),
-  new Product ('images/pen.jpg', 'weird pen', 'pen'),
-  new Product ('images/pet-sweep.jpg', 'weird pet sweep', 'pet-sweep'),
-  new Product ('images/scissors.jpg', 'weird scissors', 'scissors'),
-  new Product ('images/shark.jpg', 'weird shark', 'shark'),
-  new Product ('images/sweep.png', 'weird sweep', 'sweep'),
-  new Product ('images/tauntaun.jpg', 'weird tauntaun', 'tauntaun'),
-  new Product ('images/unicorn.jpg', 'weird unicorn', 'unicorn'),
-  new Product ('images/water-can.jpg', 'weird water can', 'water-can'),
-  new Product ('images/wine-glass.jpg', 'weird wine glass', 'wine-glass'),
-];
+// Create Local Storage Variable
+
+let storedItems = localStorage.getItem('allProducts');
+// load saved items from storage
+if (storedItems) {
+  let parsedItem = JSON.parse(storedItems);
+  allProducts = parsedItem;
+  console.log(parsedItem);
+} else {
+  new Product ('images/bag.jpg', 'weird bag', 'bag');
+  new Product ('images/banana.jpg', 'weird banana', 'banana');
+  new Product ('images/bathroom.jpg', 'weird bathroom', 'bathroom');
+  new Product ('images/boots.jpg', 'weird boots', 'boots');
+  new Product ('images/breakfast.jpg', 'weird breakfast', 'breakfast');
+  new Product ('images/bubblegum.jpg', 'weird bubblegum', 'bubblegum');
+  new Product ('images/chair.jpg', 'weird chair', 'chair');
+  new Product ('images/cthulhu.jpg', 'weird cthulhu', 'cthulhu');
+  new Product ('images/dog-duck.jpg', 'weird dog duck', 'dog-duck');
+  new Product ('images/dragon.jpg', 'weird dragon', 'dragon');
+  new Product ('images/pen.jpg', 'weird pen', 'pen');
+  new Product ('images/pet-sweep.jpg', 'weird pet sweep', 'pet-sweep');
+  new Product ('images/scissors.jpg', 'weird scissors', 'scissors');
+  new Product ('images/shark.jpg', 'weird shark', 'shark');
+  new Product ('images/sweep.png', 'weird sweep', 'sweep');
+  new Product ('images/tauntaun.jpg', 'weird tauntaun', 'tauntaun');
+  new Product ('images/unicorn.jpg', 'weird unicorn', 'unicorn');
+  new Product ('images/water-can.jpg', 'weird water can', 'water-can');
+  new Product ('images/wine-glass.jpg', 'weird wine glass', 'wine-glass');
+}
 
 //--------------------FUNCTIONS
 
-// Random Number Generator that returns 3 random indexes of productList
-
+// Random Number Generator that returns 3 random indexes of allProducts
 function randomImage() {
   return Math.floor(Math.random() * allProducts.length);
 }
@@ -72,10 +79,10 @@ function uniqueImageChecker () {
     else {
       imageArray.push(randomIndex);
     }
-    
+
     // if new image, add to the array
     // if repeated image, don't do anything
-    
+
   }
   previousArray = imageArray;
 
@@ -83,7 +90,7 @@ function uniqueImageChecker () {
   console.log('----');
   // console.log('uniqueImageChecker', imageArray);
   return (imageArray);
-};
+}
 
 
 //--------------------EVENT LISTENERS (attached to HTML where images will be displayed)
@@ -101,7 +108,7 @@ function renderNewImages() {
 // Call unique image checker and generator into global product array
   let threeNewImages = uniqueImageChecker();
   let product1, product2, product3;
-  product1 = allProducts[threeNewImages[0]]; 
+  product1 = allProducts[threeNewImages[0]];
   product2 = allProducts[threeNewImages[1]];
   product3 = allProducts[threeNewImages[2]];
 
@@ -129,8 +136,6 @@ function renderNewImages() {
 
 renderNewImages();
 
-
-
 //--------------------HELPER FUNCTION
 
 function handleClicks(event) {
@@ -138,9 +143,9 @@ function handleClicks(event) {
   // console.log(imageClicked);
   let nameOfImageClicked = imageClicked.title;
   // console.log(nameOfImageClicked);
-  for(let i = 0; i < productList.length; i++) {
-    if(nameOfImageClicked === productList[i].title){
-      productList[i].clicked++;
+  for(let i = 0; i < allProducts.length; i++) {
+    if(nameOfImageClicked === allProducts[i].title){
+      allProducts[i].clicked++;
       break;
     }
   }
@@ -148,15 +153,24 @@ function handleClicks(event) {
   if(currentRound === 10) {
     viewResultsButton.hidden = false;
     viewProductImages.hidden = true;
-    imageOne.removeEventListener('click', handleClicks);
-    imageTwo.removeEventListener('click', handleClicks);
-    imageThree.removeEventListener('click', handleClicks);
+    imageOne.removeEventListener('click', handleClicks, renderNewImages);
+    imageTwo.removeEventListener('click', handleClicks, renderNewImages);
+    imageThree.removeEventListener('click', handleClicks, renderNewImages);
   } else {
     renderNewImages();
+    setItems();
   }
 }
 
 viewResultsButton.addEventListener('click', renderChart);
+
+// save items to local storage
+
+function setItems () {
+  let stringifiedItems = JSON.stringify(allProducts);
+  localStorage.setItem('allProducts', stringifiedItems);
+}
+
 
 
 // Render Chart
@@ -203,20 +217,10 @@ function renderChart() {
           label: '# of Views',
           data: views,
           backgroundColor: [
-            // 'rgba(255, 99, 132, 0.2)',
             'rgba(54, 162, 235, 0.2)',
-            // 'rgba(255, 206, 86, 0.2)',
-            // 'rgba(75, 192, 192, 0.2)',
-            // 'rgba(153, 102, 255, 0.2)',
-            // 'rgba(255, 159, 64, 0.2)',
           ],
           borderColor: [
-            // 'rgba(255, 99, 132, 1)',
             'rgba(54, 162, 235, 1)',
-            // 'rgba(255, 206, 86, 1)',
-            // 'rgba(75, 192, 192, 1)',
-            // 'rgba(153, 102, 255, 1)',
-            // 'rgba(255, 159, 64, 1)',
           ],
           borderWidth: 1,
         },
@@ -233,13 +237,5 @@ function renderChart() {
 }
 
 
+
 //--------------------FUNCTION CALLS
-
-// Keep the number of rounds in a variable to allow the number to be easily changed for debugging and testing purposes.
-
-// Add a button with the text View Results, which when clicked displays the list of all the products followed by the votes received, and number of times seen for each. Example: banana had 3 votes, and was seen 5 times.
-// After every selection by the viewer, update the newly added property to reflect if it was clicked.
-
-
-
-
