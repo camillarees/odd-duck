@@ -1,3 +1,10 @@
 h1, h2, p{
 font-family: 'Rubik Mono One', sans-serif;
+background-color: cornflowerblue;
+color: white
+}
+
+
+head, body, footer {
+    text-align: center;
 }
